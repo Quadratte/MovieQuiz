@@ -2,8 +2,28 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
+    
+//    let testLabel: UILabel = {
+//        let lbl = UILabel()
+//        lbl.translatesAutoresizingMaskIntoConstraints = false
+//        lbl.text = "Hello world"
+//        lbl.font = UIFont(name: "YSDisplay-Bold", size: 32)
+//        lbl.textColor = .ypBlack
+//        return lbl
+//    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .orange
+        //view.addSubview(testLabel)
+        setupConstraints()
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+//            testLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//            testLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ])
     }
 }
 
@@ -69,4 +89,4 @@ final class MovieQuizViewController: UIViewController {
  Настоящий рейтинг: 5,8
  Вопрос: Рейтинг этого фильма больше чем 6?
  Ответ: НЕТ
-*/
+ */
