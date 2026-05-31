@@ -2,12 +2,20 @@ import UIKit
 
 final class AppLabel: UILabel {
 
-    private let labelTitle: String
+    enum AppLabelStyles {
+        case heding
+        case regular
+    }
 
-    init(_ labelTitle: String) {
+    private let labelTitle: String
+    private let appLabelStyle: AppLabelStyles
+
+    init(_ labelTitle: String, _ appLabelStyle: AppLabelStyles) {
         self.labelTitle = labelTitle
+        self.appLabelStyle = appLabelStyle
         super.init(frame: .zero)
         setpAppLabel()
+        applyAppLabelStyles()
     }
 
     required init?(coder: NSCoder) {
@@ -17,9 +25,17 @@ final class AppLabel: UILabel {
     private func setpAppLabel() {
         translatesAutoresizingMaskIntoConstraints = false
         text = labelTitle
-        numberOfLines = 0
-        font = UIFont(name: "YSDisplay-Bold", size: 32)
-        textColor = .white
+        numberOfLines = 2
+        textColor = .ypWhite
         textAlignment = .center
+    }
+
+    private func applyAppLabelStyles() {
+        switch appLabelStyle {
+        case .heding:
+            font = UIFont(name: "YSDisplay-Bold", size: 23)
+        case .regular:
+            font = UIFont(name: "YSDisplay-Medium", size: 20)
+        }
     }
 }

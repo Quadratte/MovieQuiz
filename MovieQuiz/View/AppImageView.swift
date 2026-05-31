@@ -2,7 +2,10 @@ import UIKit
 
 final class AppImageView: UIImageView {
 
-    override init(frame: CGRect) {
+    private let posterImage: String
+
+    init(_ posterImage: String) {
+        self.posterImage = posterImage
         super.init(frame: .zero)
         setupUI()
     }
@@ -16,9 +19,9 @@ final class AppImageView: UIImageView {
         layer.cornerRadius = 20
         layer.borderWidth = 8
         layer.masksToBounds = true
-        layer.borderColor = UIColor.systemGreen.cgColor
+        layer.borderColor = UIColor.clear.cgColor
         backgroundColor = .white
-        image = .deadpool
+        image = UIImage(named: posterImage)
         contentMode = .scaleAspectFill
     }
 }

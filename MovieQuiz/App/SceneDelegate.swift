@@ -10,7 +10,9 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard (scene as? UIWindowScene) != nil else { return }
-        
+
+       // sleep(2); #warning ("Sleep")
+
         self.window = UIWindow(windowScene: scene as! UIWindowScene)
         self.window?.rootViewController = MovieQuizViewController()
         self.window?.makeKeyAndVisible()

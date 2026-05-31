@@ -18,11 +18,11 @@ final class AppButton: UIButton {
     private func setupAppButton() {
         translatesAutoresizingMaskIntoConstraints = false
         setTitle(buttonTitle, for: .normal)
-        layer.cornerRadius = 16
+        layer.cornerRadius = 15
     }
 
     private func applyAppButtonStyles() {
-        backgroundColor = .white
+        backgroundColor = .ypWhite
         setTitleColor(.ypBlack, for: .normal)
     }
 }

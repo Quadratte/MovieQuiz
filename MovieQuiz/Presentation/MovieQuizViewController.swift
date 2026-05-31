@@ -1,112 +1,129 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController {
-    // MARK: - Lifecycle
 
-    let moviePosterImage = AppImageView(frame: .zero)
-    let questionLabel = AppLabel("Рейтинг этого фильма меньше чем 5?")
-    let yesButton = AppButton("Yes")
-    let noButton = AppButton("No")
+    private let questions = QuizQuestion.mockQuestions
+    private var currentQuestionIndex = 0
+    private var correctAnswers = 0
+
+    // DRY, но не стал выносить стеки в отдельный компонент, т.к. один экран.
+    private let mainStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.spacing = 20
+        stack.alignment = .fill
+        stack.distribution = .fill
+        return stack
+    }()
+
+    private let headerStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.spacing = 20
+        stack.alignment = .center
+        stack.distribution = .equalSpacing
+        return stack
+    }()
+
+    private let buttonStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.spacing = 20
+        stack.alignment = .fill
+        stack.distribution = .fillEqually
+        return stack
+    }()
+
+    private let titleLabel = AppLabel("Вопрос:", .regular)
+    private let progressLabel = AppLabel("1/10", .regular)
+    private let moviePosterImage = AppImageView(" ")
+    private let questionLabel = AppLabel("Рейтинг этого фильма меньше чем 5?", .heding)
+    private let yesButton = AppButton("Yes")
+    private let noButton = AppButton("No")
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupActions()
         setupConstraints()
     }
 
     private func setupUI() {
         view.backgroundColor = .ypBlack
-        view.addSubview(moviePosterImage)
-        view.addSubview(questionLabel)
-        view.addSubview(yesButton)
-        view.addSubview(noButton)
+
+        view.addSubview(mainStack)
+
+        mainStack.addArrangedSubview(headerStack)
+        mainStack.addArrangedSubview(moviePosterImage)
+        mainStack.addArrangedSubview(questionLabel)
+        mainStack.addArrangedSubview(buttonStack)
+
+        headerStack.addArrangedSubview(titleLabel)
+        headerStack.addArrangedSubview(progressLabel)
+
+        buttonStack.addArrangedSubview(yesButton)
+        buttonStack.addArrangedSubview(noButton)
+    }
+
+    private func setupActions() {
+
+        yesButton.addAction(UIAction { [weak self] _ in
+            self?.updateUI()
+        }, for: .touchUpInside)
+
+        noButton.addAction(UIAction { [weak self] _ in
+        }, for: .touchUpInside)
+    }
+
+    private func updateUI() {
+        show(quiz: convert(model: questions[currentQuestionIndex]))
+        currentQuestionIndex += 1
+        showAnswerResult(isCorrect: isAnswerCorrect())
+        print("Yes +1")
+    }
+
+    private func convert(model: QuizQuestion) -> QuizStepViewModel {
+        let questionStep = QuizStepViewModel(
+            image: UIImage(named: model.image) ?? UIImage(),
+            question: model.text,
+            questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)"
+        )
+
+        return questionStep
+    }
+
+    private func show(quiz step: QuizStepViewModel) {
+        progressLabel.text = step.questionNumber
+        moviePosterImage.image = step.image
+        questionLabel.text = step.question
+    }
+
+    private func isAnswerCorrect() -> Bool {
+        let ans = Bool.random()
+        return ans
+    }
+
+    private func showAnswerResult(isCorrect: Bool) {
+        if isCorrect{
+            moviePosterImage.layer.borderColor = UIColor.ypGreen.cgColor
+        } else {
+            moviePosterImage.layer.borderColor = UIColor.ypRed.cgColor
+        }
     }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
 
-            moviePosterImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            moviePosterImage.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            moviePosterImage.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-            moviePosterImage.heightAnchor.constraint(equalToConstant: 502),
+            mainStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            mainStack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            mainStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            mainStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
 
-            questionLabel.topAnchor.constraint(equalTo: moviePosterImage.bottomAnchor, constant: 40),
-            questionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            questionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-
-            yesButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            yesButton.widthAnchor.constraint(equalTo: noButton.widthAnchor),
-            yesButton.heightAnchor.constraint(equalToConstant: 60),
-            yesButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-
-            noButton.leadingAnchor.constraint(equalTo: yesButton.trailingAnchor, constant: 20),
-            noButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-            noButton.heightAnchor.constraint(equalToConstant: 60),
-            noButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            moviePosterImage.widthAnchor.constraint(equalTo: moviePosterImage.heightAnchor, multiplier: 2/3),
+            buttonStack.heightAnchor.constraint(equalToConstant: 60),
         ])
     }
 }
-
-/*
- Mock-данные
-
-
- Картинка: The Godfather
- Настоящий рейтинг: 9,2
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: The Dark Knight
- Настоящий рейтинг: 9
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: Kill Bill
- Настоящий рейтинг: 8,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: The Avengers
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: Deadpool
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: The Green Knight
- Настоящий рейтинг: 6,6
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: Old
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
-
-
- Картинка: The Ice Age Adventures of Buck Wild
- Настоящий рейтинг: 4,3
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
-
-
- Картинка: Tesla
- Настоящий рейтинг: 5,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
-
-
- Картинка: Vivarium
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- */
