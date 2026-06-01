@@ -2,10 +2,7 @@ import UIKit
 
 final class AppImageView: UIImageView {
 
-    private let posterImage: String
-
-    init(_ posterImage: String) {
-        self.posterImage = posterImage
+    init() {
         super.init(frame: .zero)
         setupUI()
     }
@@ -21,7 +18,6 @@ final class AppImageView: UIImageView {
         layer.masksToBounds = true
         layer.borderColor = UIColor.clear.cgColor
         backgroundColor = .white
-        image = UIImage(named: posterImage)
         contentMode = .scaleAspectFill
     }
 }
