@@ -8,11 +8,11 @@ final class QuizLabel: UILabel {
     }
 
     private let labelTitle: String
-    private let QuizLabelStyle: QuizLabelStyles
+    private let quizLabelStyle: QuizLabelStyles
 
-    init(_ labelTitle: String, _ QuizLabelStyle: QuizLabelStyles) {
+    init(_ labelTitle: String, _ quizLabelStyle: QuizLabelStyles) {
         self.labelTitle = labelTitle
-        self.QuizLabelStyle = QuizLabelStyle
+        self.quizLabelStyle = quizLabelStyle
         super.init(frame: .zero)
         setupQuizLabel()
         applyQuizLabelStyles()
@@ -31,7 +31,7 @@ final class QuizLabel: UILabel {
     }
 
     private func applyQuizLabelStyles() {
-        switch QuizLabelStyle {
+        switch quizLabelStyle {
         case .heading:
             font = UIFont(name: "YSDisplay-Bold", size: 23)
         case .regular:
