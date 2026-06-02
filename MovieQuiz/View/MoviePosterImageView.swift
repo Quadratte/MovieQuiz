@@ -1,17 +1,17 @@
 import UIKit
 
-final class AppImageView: UIImageView {
+final class MoviePosterImageView: UIImageView {
 
     init() {
         super.init(frame: .zero)
-        setupUI()
+        setupMoviePosterImageViewUI()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupUI() {
+    private func setupMoviePosterImageViewUI() {
         translatesAutoresizingMaskIntoConstraints = false
         layer.cornerRadius = 20
         layer.borderWidth = 8
