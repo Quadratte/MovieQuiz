@@ -1,27 +1,27 @@
 import UIKit
 
-final class AppButton: UIButton {
+final class QuizAnswerButton: UIButton {
 
     private let buttonTitle: String
 
     init(_ buttonTitle: String) {
         self.buttonTitle = buttonTitle
         super.init(frame: .zero)
-        setupAppButton()
-        applyAppButtonStyles()
+        setupQuizButton()
+        applyQuizButtonStyles()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupAppButton() {
+    private func setupQuizButton() {
         translatesAutoresizingMaskIntoConstraints = false
         setTitle(buttonTitle, for: .normal)
         layer.cornerRadius = 15
     }
 
-    private func applyAppButtonStyles() {
+    private func applyQuizButtonStyles() {
         backgroundColor = .ypWhite
         setTitleColor(.ypBlack, for: .normal)
     }

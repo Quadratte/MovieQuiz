@@ -1,27 +1,23 @@
 import UIKit
 
-final class AppImageView: UIImageView {
+final class MoviePosterImageView: UIImageView {
 
-    private let posterImage: String
-
-    init(_ posterImage: String) {
-        self.posterImage = posterImage
+    init() {
         super.init(frame: .zero)
-        setupUI()
+        setupMoviePosterImageViewUI()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupUI() {
+    private func setupMoviePosterImageViewUI() {
         translatesAutoresizingMaskIntoConstraints = false
         layer.cornerRadius = 20
         layer.borderWidth = 8
         layer.masksToBounds = true
         layer.borderColor = UIColor.clear.cgColor
         backgroundColor = .white
-        image = UIImage(named: posterImage)
         contentMode = .scaleAspectFill
     }
 }
