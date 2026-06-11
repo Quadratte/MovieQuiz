@@ -169,6 +169,7 @@ final class MovieQuizViewController: UIViewController {
         let message = "Вы ответили правильно на \(correctAnswers) из \(questions.count) вопросов."
         let alert = UIAlertController(title: "Игра окончена", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "Сыграть еще раз", style: .default) { [ weak self ] _ in
+            
             self?.resetGame()
         }
         alert.addAction(action)
