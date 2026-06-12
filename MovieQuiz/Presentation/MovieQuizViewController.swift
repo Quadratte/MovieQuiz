@@ -91,11 +91,13 @@ final class MovieQuizViewController: UIViewController {
 
     private func setupActions() {
         yesButton.addAction(UIAction { [weak self] _ in
-            self?.handleAnswer(isYes: true)
+            guard let self else { return }
+            self.handleAnswer(isYes: true)
         }, for: .touchUpInside)
 
         noButton.addAction(UIAction { [weak self] _ in
-            self?.handleAnswer(isYes: false)
+            guard let self else { return }
+            self.handleAnswer(isYes: false)
         }, for: .touchUpInside)
     }
 
