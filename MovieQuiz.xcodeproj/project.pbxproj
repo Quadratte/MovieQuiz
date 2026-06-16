@@ -7,11 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		10282B2E2FE1D709005B32B3 /* QuestionFactoryDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10282B2D2FE1D6FE005B32B3 /* QuestionFactoryDelegate.swift */; };
 		104720512FC8CD1800AD2B1A /* QuizAnswerButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 104720502FC8CD1300AD2B1A /* QuizAnswerButton.swift */; };
 		104720532FC8D0E300AD2B1A /* QuizLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 104720522FC8D0E000AD2B1A /* QuizLabel.swift */; };
 		104720552FC8D2C800AD2B1A /* MoviePosterImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 104720542FC8D2C600AD2B1A /* MoviePosterImageView.swift */; };
 		10F22B2E2FCC575F00846B03 /* QuizStepModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F22B2D2FCC575D00846B03 /* QuizStepModel.swift */; };
 		10F22B302FCC582600846B03 /* QuizQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F22B2F2FCC582600846B03 /* QuizQuestion.swift */; };
+		10F5A06E2FE07FF700364EBD /* QuestionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F5A06D2FE07FEF00364EBD /* QuestionFactory.swift */; };
+		10F5A0702FE0971B00364EBD /* QuestionFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F5A06F2FE0971100364EBD /* QuestionFactoryProtocol.swift */; };
 		10F9E87A2FCF45C700588577 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 10F9E8792FCF45C700588577 /* Launch Screen.storyboard */; };
 		70DEC2822FC00AA5001C2405 /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 70DEC2802FC00AA5001C2405 /* YS Display-Bold.ttf */; };
 		70DEC2832FC00AA5001C2405 /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 70DEC2812FC00AA5001C2405 /* YS Display-Medium.ttf */; };
@@ -25,11 +28,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		10282B2D2FE1D6FE005B32B3 /* QuestionFactoryDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionFactoryDelegate.swift; sourceTree = "<group>"; };
 		104720502FC8CD1300AD2B1A /* QuizAnswerButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAnswerButton.swift; sourceTree = "<group>"; };
 		104720522FC8D0E000AD2B1A /* QuizLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizLabel.swift; sourceTree = "<group>"; };
 		104720542FC8D2C600AD2B1A /* MoviePosterImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviePosterImageView.swift; sourceTree = "<group>"; };
 		10F22B2D2FCC575D00846B03 /* QuizStepModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizStepModel.swift; sourceTree = "<group>"; };
 		10F22B2F2FCC582600846B03 /* QuizQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizQuestion.swift; sourceTree = "<group>"; };
+		10F5A06D2FE07FEF00364EBD /* QuestionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionFactory.swift; sourceTree = "<group>"; };
+		10F5A06F2FE0971100364EBD /* QuestionFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionFactoryProtocol.swift; sourceTree = "<group>"; };
 		10F9E8792FCF45C700588577 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		70DEC2802FC00AA5001C2405 /* YS Display-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Bold.ttf"; sourceTree = "<group>"; };
 		70DEC2812FC00AA5001C2405 /* YS Display-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Medium.ttf"; sourceTree = "<group>"; };
@@ -86,6 +92,9 @@
 		6113423A2B701CF8003FC2A4 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				10282B2D2FE1D6FE005B32B3 /* QuestionFactoryDelegate.swift */,
+				10F5A06F2FE0971100364EBD /* QuestionFactoryProtocol.swift */,
+				10F5A06D2FE07FEF00364EBD /* QuestionFactory.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -240,12 +249,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD5EE5DE284D7887003966EF /* UIColor+Extensions.swift in Sources */,
+				10282B2E2FE1D709005B32B3 /* QuestionFactoryDelegate.swift in Sources */,
 				10F22B302FCC582600846B03 /* QuizQuestion.swift in Sources */,
 				10F22B2E2FCC575F00846B03 /* QuizStepModel.swift in Sources */,
 				AD7AFA552836189F00399704 /* Array+Extensions.swift in Sources */,
 				104720552FC8D2C800AD2B1A /* MoviePosterImageView.swift in Sources */,
+				10F5A06E2FE07FF700364EBD /* QuestionFactory.swift in Sources */,
 				104720532FC8D0E300AD2B1A /* QuizLabel.swift in Sources */,
 				AD1ABAB62831907B00B3E448 /* MovieQuizViewController.swift in Sources */,
+				10F5A0702FE0971B00364EBD /* QuestionFactoryProtocol.swift in Sources */,
 				AD77F5742857F8810062FB14 /* Date+Extensions.swift in Sources */,
 				AD1ABAB22831907B00B3E448 /* AppDelegate.swift in Sources */,
 				104720512FC8CD1800AD2B1A /* QuizAnswerButton.swift in Sources */,
@@ -382,7 +394,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = ZW85ZS75QC;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MovieQuiz/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -397,7 +409,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ru.yandex.practicum.MovieQuiz;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mq;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -411,7 +423,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = ZW85ZS75QC;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MovieQuiz/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -426,7 +438,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ru.yandex.practicum.MovieQuiz;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mq;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

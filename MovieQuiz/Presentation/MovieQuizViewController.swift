@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     // MARK: - UI Elements
 
@@ -43,10 +43,11 @@ final class MovieQuizViewController: UIViewController {
 
     // MARK: - Properties
 
-    private let questions = QuizQuestion.mockQuestions
-
     private var currentQuestionIndex = 0
+    private let questionsAmount = 10
+    private var currentQuestion: QuizQuestion?
     private var correctAnswers = 0
+    private lazy var questionsFactory: QuestionFactoryProtocol = QuestionFactory(delegate: self)
 
     // MARK: - Lifecycle
 
@@ -55,7 +56,7 @@ final class MovieQuizViewController: UIViewController {
         setupUI()
         setupActions()
         setupConstraints()
-        updateUI()
+        questionsFactory.requestNextQuestion()
     }
 
     // MARK: - Actions
@@ -113,17 +114,25 @@ final class MovieQuizViewController: UIViewController {
         ])
     }
 
-    // MARK: - Quiz Flow
+    // MARK: - QuestionFactoryDelegate
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question else { return }
+        currentQuestion = question
 
-    private func updateUI() {
-        let step = convert(model: questions[currentQuestionIndex])
-        show(quiz: step)
+        let model = convert(model: question)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: model)
+        }
     }
 
+    // MARK: - Quiz Flow
+
     private func showNextQuestionOrResults() {
-        if currentQuestionIndex + 1 < questions.count {
+        if currentQuestionIndex + 1 < questionsAmount {
             currentQuestionIndex += 1
-            updateUI()
+            questionsFactory.requestNextQuestion()
         } else {
             showResults()
         }
@@ -133,7 +142,7 @@ final class MovieQuizViewController: UIViewController {
     private func resetGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
-        updateUI()
+        questionsFactory.requestNextQuestion()
     }
 
     // MARK: - Mapping
@@ -142,7 +151,7 @@ final class MovieQuizViewController: UIViewController {
         return QuizStepModel(
             image: UIImage(named: model.image) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)"
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
     }
 
@@ -166,7 +175,7 @@ final class MovieQuizViewController: UIViewController {
     }
 
     private func showResults() {
-        let message = "Вы ответили правильно на \(correctAnswers) из \(questions.count) вопросов."
+        let message = "Вы ответили правильно на \(correctAnswers) из \(questionsAmount) вопросов."
         let alert = UIAlertController(title: "Игра окончена", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "Сыграть еще раз", style: .default) { [ weak self ] _ in
             self?.resetGame()
@@ -178,7 +187,7 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Helpers
 
     private func isAnswerCorrect() -> Bool {
-        return questions[currentQuestionIndex].correctAnswer
+        return currentQuestion?.correctAnswer ?? false
     }
 
     private func setButtons(isEnabled: Bool, _ buttons: UIButton...) {
