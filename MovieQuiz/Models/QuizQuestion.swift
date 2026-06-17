@@ -1,6 +1,6 @@
-import UIKit
+import Foundation
 
-public struct QuizQuestion {
+struct QuizQuestion {
     let image: String
     let actualRating: Double
     let text: String

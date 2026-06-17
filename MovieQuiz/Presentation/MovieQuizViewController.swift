@@ -48,6 +48,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     private var correctAnswers = 0
     private lazy var questionsFactory: QuestionFactoryProtocol = QuestionFactory(delegate: self)
+    private lazy var alertPresenter = AlertPresenter(viewController: self)
+    private let statisticService = StatisticService()
 
     // MARK: - Lifecycle
 
@@ -175,19 +177,30 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     private func showResults() {
-        let message = "Вы ответили правильно на \(correctAnswers) из \(questionsAmount) вопросов."
-        let alert = UIAlertController(title: "Игра окончена", message: message, preferredStyle: .alert)
-        let action = UIAlertAction(title: "Сыграть еще раз", style: .default) { [ weak self ] _ in
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
+
+        let message = """
+                Ваш результат: \(correctAnswers) из \(questionsAmount)
+                Количество сыгранных квизов: \(statisticService.gamesCount)
+                Рекорд: \(statisticService.bestGame.correct) из \(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))
+                Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+                """
+
+        let alertModel = AlertModel(
+            title: "Игра окончена",
+            message: message,
+            buttonText: "Сыграть еще раз"
+        ) { [weak self] in
             self?.resetGame()
         }
-        alert.addAction(action)
-        self.present(alert, animated: true)
+
+        alertPresenter.show(model: alertModel)
     }
 
     // MARK: - Helpers
 
     private func isAnswerCorrect() -> Bool {
-        return currentQuestion?.correctAnswer ?? false
+        currentQuestion?.correctAnswer ?? false
     }
 
     private func setButtons(isEnabled: Bool, _ buttons: UIButton...) {
