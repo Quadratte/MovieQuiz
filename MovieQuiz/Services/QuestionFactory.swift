@@ -1,6 +1,6 @@
-import UIKit
+import Foundation
 
-class QuestionFactory: QuestionFactoryProtocol {
+final class QuestionFactory: QuestionFactoryProtocol {
 
     weak var delegate: QuestionFactoryDelegate?
 
@@ -18,43 +18,43 @@ class QuestionFactory: QuestionFactoryProtocol {
     }
 
     private let mockQuestions: [QuizQuestion] = [
-        QuizQuestion(image: "The Godfather",
+        QuizQuestion(imageName: "The Godfather",
                      actualRating: 9.2,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: true),
-        QuizQuestion(image: "The Dark Knight",
+        QuizQuestion(imageName: "The Dark Knight",
                      actualRating: 9.2,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: true),
-        QuizQuestion(image: "Kill Bill",
+        QuizQuestion(imageName: "Kill Bill",
                      actualRating: 8.1,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: true),
-        QuizQuestion(image: "The Avengers",
+        QuizQuestion(imageName: "The Avengers",
                      actualRating: 8,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: true),
-        QuizQuestion(image: "Deadpool",
+        QuizQuestion(imageName: "Deadpool",
                      actualRating: 8,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: true),
-        QuizQuestion(image: "The Green Knight",
+        QuizQuestion(imageName: "The Green Knight",
                      actualRating: 6.6,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: true),
-        QuizQuestion(image: "The Ice Age Adventures of Buck Wild",
+        QuizQuestion(imageName: "The Ice Age Adventures of Buck Wild",
                      actualRating: 5.8,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: false),
-        QuizQuestion(image: "Old",
+        QuizQuestion(imageName: "Old",
                      actualRating: 4.3,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: false),
-        QuizQuestion(image: "Tesla",
+        QuizQuestion(imageName: "Tesla",
                      actualRating: 5.1,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: false),
-        QuizQuestion(image: "Vivarium",
+        QuizQuestion(imageName: "Vivarium",
                      actualRating: 5.8,
                      text: "Рейтинг этого фильма больше чем 6?",
                      correctAnswer: false),

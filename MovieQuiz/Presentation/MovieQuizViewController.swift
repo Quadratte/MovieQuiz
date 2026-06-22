@@ -47,9 +47,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionsAmount = 10
     private var currentQuestion: QuizQuestion?
     private var correctAnswers = 0
-    private lazy var questionsFactory: QuestionFactoryProtocol = QuestionFactory(delegate: self)
+    private let statisticService: StatisticServiceProtocol = StatisticService()
+    private lazy var questionsFactory = QuestionFactory(delegate: self)
     private lazy var alertPresenter = AlertPresenter(viewController: self)
-    private let statisticService = StatisticService()
 
     // MARK: - Lifecycle
 
@@ -77,7 +77,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Setup
 
     private func setupUI() {
-        view.backgroundColor = .ypBlack
+        view.backgroundColor = UIColor.ypBlack
         view.addSubview(mainStack)
 
         mainStack.addArrangedSubview(headerStack)
@@ -124,8 +124,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
         let model = convert(model: question)
 
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: model)
+        DispatchQueue.main.async {
+            self.show(quiz: model)
         }
     }
 
@@ -151,7 +151,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     private func convert(model: QuizQuestion) -> QuizStepModel {
         return QuizStepModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(named: model.imageName) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
@@ -170,9 +170,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         moviePosterImage.layer.borderColor = borderColor
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [ weak self ] in
-            self?.moviePosterImage.layer.borderColor = UIColor.clear.cgColor
-            self?.showNextQuestionOrResults()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.moviePosterImage.layer.borderColor = UIColor.clear.cgColor
+            self.showNextQuestionOrResults()
         }
     }
 
