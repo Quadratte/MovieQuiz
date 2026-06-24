@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     // MARK: - UI Elements
 
@@ -43,10 +43,13 @@ final class MovieQuizViewController: UIViewController {
 
     // MARK: - Properties
 
-    private let questions = QuizQuestion.mockQuestions
-
     private var currentQuestionIndex = 0
+    private let questionsAmount = 10
+    private var currentQuestion: QuizQuestion?
     private var correctAnswers = 0
+    private let statisticService: StatisticServiceProtocol = StatisticService()
+    private lazy var questionsFactory = QuestionFactory(delegate: self)
+    private lazy var alertPresenter = AlertPresenter(viewController: self)
 
     // MARK: - Lifecycle
 
@@ -55,7 +58,7 @@ final class MovieQuizViewController: UIViewController {
         setupUI()
         setupActions()
         setupConstraints()
-        updateUI()
+        questionsFactory.requestNextQuestion()
     }
 
     // MARK: - Actions
@@ -74,7 +77,7 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Setup
 
     private func setupUI() {
-        view.backgroundColor = .ypBlack
+        view.backgroundColor = UIColor.ypBlack
         view.addSubview(mainStack)
 
         mainStack.addArrangedSubview(headerStack)
@@ -113,17 +116,25 @@ final class MovieQuizViewController: UIViewController {
         ])
     }
 
-    // MARK: - Quiz Flow
+    // MARK: - QuestionFactoryDelegate
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question else { return }
+        currentQuestion = question
 
-    private func updateUI() {
-        let step = convert(model: questions[currentQuestionIndex])
-        show(quiz: step)
+        let model = convert(model: question)
+
+        DispatchQueue.main.async {
+            self.show(quiz: model)
+        }
     }
 
+    // MARK: - Quiz Flow
+
     private func showNextQuestionOrResults() {
-        if currentQuestionIndex + 1 < questions.count {
+        if currentQuestionIndex + 1 < questionsAmount {
             currentQuestionIndex += 1
-            updateUI()
+            questionsFactory.requestNextQuestion()
         } else {
             showResults()
         }
@@ -133,16 +144,16 @@ final class MovieQuizViewController: UIViewController {
     private func resetGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
-        updateUI()
+        questionsFactory.requestNextQuestion()
     }
 
     // MARK: - Mapping
 
     private func convert(model: QuizQuestion) -> QuizStepModel {
         return QuizStepModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(named: model.imageName) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)"
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
     }
 
@@ -159,26 +170,37 @@ final class MovieQuizViewController: UIViewController {
         let borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         moviePosterImage.layer.borderColor = borderColor
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [ weak self ] in
-            self?.moviePosterImage.layer.borderColor = UIColor.clear.cgColor
-            self?.showNextQuestionOrResults()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.moviePosterImage.layer.borderColor = UIColor.clear.cgColor
+            self.showNextQuestionOrResults()
         }
     }
 
     private func showResults() {
-        let message = "Вы ответили правильно на \(correctAnswers) из \(questions.count) вопросов."
-        let alert = UIAlertController(title: "Игра окончена", message: message, preferredStyle: .alert)
-        let action = UIAlertAction(title: "Сыграть еще раз", style: .default) { [ weak self ] _ in
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
+
+        let message = """
+                Ваш результат: \(correctAnswers) из \(questionsAmount)
+                Количество сыгранных квизов: \(statisticService.gamesCount)
+                Рекорд: \(statisticService.bestGame.correct) из \(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))
+                Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+                """
+
+        let alertModel = AlertModel(
+            title: "Игра окончена",
+            message: message,
+            buttonText: "Сыграть еще раз"
+        ) { [weak self] in
             self?.resetGame()
         }
-        alert.addAction(action)
-        self.present(alert, animated: true)
+
+        alertPresenter.show(model: alertModel)
     }
 
     // MARK: - Helpers
 
     private func isAnswerCorrect() -> Bool {
-        return questions[currentQuestionIndex].correctAnswer
+        currentQuestion?.correctAnswer ?? false
     }
 
     private func setButtons(isEnabled: Bool, _ buttons: UIButton...) {

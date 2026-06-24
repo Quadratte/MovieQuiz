@@ -22,7 +22,7 @@ final class QuizAnswerButton: UIButton {
     }
 
     private func applyQuizButtonStyles() {
-        backgroundColor = .ypWhite
-        setTitleColor(.ypBlack, for: .normal)
+        backgroundColor = UIColor.ypWhite
+        setTitleColor(UIColor.ypBlack, for: .normal)
     }
 }

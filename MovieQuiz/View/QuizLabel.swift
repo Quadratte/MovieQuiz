@@ -26,7 +26,7 @@ final class QuizLabel: UILabel {
         translatesAutoresizingMaskIntoConstraints = false
         text = labelTitle
         numberOfLines = 2
-        textColor = .ypWhite
+        textColor = UIColor.ypWhite
         textAlignment = .center
     }
 
