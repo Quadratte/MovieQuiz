@@ -1,7 +1,7 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
-
+    
     // MARK: - UI Elements
 
     private let mainStack: UIStackView = {
@@ -127,6 +127,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         DispatchQueue.main.async {
             self.show(quiz: model)
         }
+    }
+    
+    func didLoadDataFromServer() {
+        MoviesLoader.loadMovies()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription) 
     }
 
     // MARK: - Quiz Flow
