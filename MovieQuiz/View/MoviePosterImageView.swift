@@ -18,7 +18,7 @@ final class MoviePosterImageView: UIImageView {
         layer.borderWidth = 8
         layer.masksToBounds = true
         layer.borderColor = UIColor.clear.cgColor
-        backgroundColor = .white
+        backgroundColor = .ypBlack
         contentMode = .scaleAspectFill
     }
 }

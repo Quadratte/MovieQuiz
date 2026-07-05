@@ -1,7 +1,6 @@
 import Foundation
 
 struct NetworkClient {
-    
     private enum NetworkError: Error {
         case codeError
     }
@@ -23,7 +22,6 @@ struct NetworkClient {
             guard let data else { return }
             handler(.success(data))
         }
-        
         task.resume()
     }
 }
