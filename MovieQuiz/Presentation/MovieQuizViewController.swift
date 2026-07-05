@@ -66,6 +66,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         setupUI()
         setupActions()
         setupConstraints()
+        showLoadingIndicator()
         questionsFactory.loadData()
     }
 
@@ -150,8 +151,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     func didFailToLoadData(with error: Error) {
-        DispatchQueue.main.async { [weak self] in
-            self?.showNetworkError(message: error.localizedDescription)
+        hideLoadingIndicator()
+        DispatchQueue.main.async {
+            self.showNetworkError(message: error.localizedDescription)
         }
     }
 
@@ -248,7 +250,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     // MARK: - Helpers
-
+    
     private func isAnswerCorrect() -> Bool {
         currentQuestion?.correctAnswer ?? false
     }
