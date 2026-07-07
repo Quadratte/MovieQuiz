@@ -40,6 +40,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionLabel = QuizLabel("Рейтинг этого фильма больше чем 6?", .heading)
     private let yesButton = QuizAnswerButton("Да")
     private let noButton = QuizAnswerButton("Нет")
+    private let indicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.alpha = 1.0
+        indicator.hidesWhenStopped = true
+        indicator.color = .ypWhite
+        return indicator
+    }()
 
     // MARK: - Properties
 
@@ -48,7 +56,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     private var correctAnswers = 0
     private let statisticService: StatisticServiceProtocol = StatisticService()
-    private lazy var questionsFactory = QuestionFactory(delegate: self)
+    private lazy var questionsFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     private lazy var alertPresenter = AlertPresenter(viewController: self)
 
     // MARK: - Lifecycle
@@ -58,7 +66,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         setupUI()
         setupActions()
         setupConstraints()
-        questionsFactory.requestNextQuestion()
+        showLoadingIndicator()
+        questionsFactory.loadData()
     }
 
     // MARK: - Actions
@@ -90,6 +99,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
         buttonsStack.addArrangedSubview(yesButton)
         buttonsStack.addArrangedSubview(noButton)
+
+        moviePosterImage.addSubview(indicator)
     }
 
     private func setupActions() {
@@ -110,14 +121,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             mainStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
 
             headerStack.heightAnchor.constraint(equalToConstant: 24),
+
             moviePosterImage.widthAnchor.constraint(equalTo: moviePosterImage.heightAnchor, multiplier: 2/3),
+            indicator.centerYAnchor.constraint(equalTo: moviePosterImage.centerYAnchor),
+            indicator.centerXAnchor.constraint(equalTo: moviePosterImage.centerXAnchor),
             questionLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
+
             buttonsStack.heightAnchor.constraint(equalToConstant: 60),
         ])
     }
 
     // MARK: - QuestionFactoryDelegate
-    
+
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question else { return }
         currentQuestion = question
@@ -126,6 +141,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
         DispatchQueue.main.async {
             self.show(quiz: model)
+        }
+    }
+
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        questionsFactory.requestNextQuestion()
+    }
+
+    func didFailToLoadData(with error: Error) {
+        DispatchQueue.main.async { [weak self] in
+            let userMessage = ErrorHandler.getUserFriendlyMessage(from: error)
+            self?.showNetworkError(message: userMessage)
         }
     }
 
@@ -144,14 +171,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func resetGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
-        questionsFactory.requestNextQuestion()
+        showLoadingIndicator()
+        questionsFactory.loadData()
     }
 
     // MARK: - Mapping
 
     private func convert(model: QuizQuestion) -> QuizStepModel {
         return QuizStepModel(
-            image: UIImage(named: model.imageName) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
@@ -161,9 +189,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     private func show(quiz step: QuizStepModel) {
         progressLabel.text = step.questionNumber
-        moviePosterImage.image = step.image
         questionLabel.text = step.question
         moviePosterImage.layer.borderColor = UIColor.clear.cgColor
+        moviePosterImage.image = step.image
     }
 
     private func showAnswerResult(isCorrect: Bool) {
@@ -197,8 +225,29 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter.show(model: alertModel)
     }
 
-    // MARK: - Helpers
+    private func showLoadingIndicator() {
+        indicator.isHidden = false
+        indicator.startAnimating()
+    }
 
+    private func hideLoadingIndicator() {
+        indicator.stopAnimating()
+        indicator.isHidden = true
+    }
+
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        let alertModel = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать еще раз") { [weak self] in
+                self?.resetGame()
+            }
+        alertPresenter.show(model: alertModel)
+    }
+
+    // MARK: - Helpers
+    
     private func isAnswerCorrect() -> Bool {
         currentQuestion?.correctAnswer ?? false
     }
