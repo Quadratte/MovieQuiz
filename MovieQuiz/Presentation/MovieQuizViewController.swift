@@ -128,7 +128,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             questionLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
 
             buttonsStack.heightAnchor.constraint(equalToConstant: 60),
-
         ])
     }
 
@@ -151,9 +150,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     func didFailToLoadData(with error: Error) {
-        hideLoadingIndicator()
-        DispatchQueue.main.async {
-            self.showNetworkError(message: error.localizedDescription)
+        DispatchQueue.main.async { [weak self] in
+            let userMessage = ErrorHandler.getUserFriendlyMessage(from: error)
+            self?.showNetworkError(message: userMessage)
         }
     }
 
@@ -192,9 +191,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         progressLabel.text = step.questionNumber
         questionLabel.text = step.question
         moviePosterImage.layer.borderColor = UIColor.clear.cgColor
-
         moviePosterImage.image = step.image
-
     }
 
     private func showAnswerResult(isCorrect: Bool) {
