@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
 
     // MARK: - UI Elements
 
@@ -35,43 +35,41 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }()
 
     private let titleLabel = QuizLabel("Вопрос:", .regular)
-    private let progressLabel = QuizLabel("1/10", .regular)
-    private let moviePosterImage = MoviePosterImageView()
+    private let progressLabel = QuizLabel("1/10", .regular, identifier: "Index")
+    private let moviePosterImage = MoviePosterImageView(identifier: "Poster")
     private let questionLabel = QuizLabel("Рейтинг этого фильма больше чем 6?", .heading)
-    private let yesButton = QuizAnswerButton("Да")
-    private let noButton = QuizAnswerButton("Нет")
+    private let yesButton = QuizAnswerButton("Да", identifier: "Yes")
+    private let noButton = QuizAnswerButton("Нет", identifier: "No")
+    private let indicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.alpha = 1.0
+        indicator.hidesWhenStopped = true
+        indicator.color = .ypWhite
+        return indicator
+    }()
 
     // MARK: - Properties
 
-    private var currentQuestionIndex = 0
-    private let questionsAmount = 10
-    private var currentQuestion: QuizQuestion?
-    private var correctAnswers = 0
-    private let statisticService: StatisticServiceProtocol = StatisticService()
-    private lazy var questionsFactory = QuestionFactory(delegate: self)
+    private let presenter = MovieQuizPresenter()
     private lazy var alertPresenter = AlertPresenter(viewController: self)
 
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter.view = self
         setupUI()
         setupActions()
         setupConstraints()
-        questionsFactory.requestNextQuestion()
+        presenter.loadData()
     }
 
     // MARK: - Actions
 
     private func handleAnswer(isYes: Bool) {
-        setButtons(isEnabled: false, yesButton, noButton)
-
-        let isCorrect = isYes ? isAnswerCorrect() : !isAnswerCorrect()
-
-        if isCorrect {
-            correctAnswers += 1
-        }
-        showAnswerResult(isCorrect: isCorrect)
+        setButtons(isEnabled: false)
+        presenter.handleAnswer(isYes: isYes)
     }
 
     // MARK: - Setup
@@ -90,6 +88,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
         buttonsStack.addArrangedSubview(yesButton)
         buttonsStack.addArrangedSubview(noButton)
+
+        moviePosterImage.addSubview(indicator)
     }
 
     private func setupActions() {
@@ -111,99 +111,77 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
             headerStack.heightAnchor.constraint(equalToConstant: 24),
             moviePosterImage.widthAnchor.constraint(equalTo: moviePosterImage.heightAnchor, multiplier: 2/3),
+            indicator.centerYAnchor.constraint(equalTo: moviePosterImage.centerYAnchor),
+            indicator.centerXAnchor.constraint(equalTo: moviePosterImage.centerXAnchor),
             questionLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
             buttonsStack.heightAnchor.constraint(equalToConstant: 60),
         ])
     }
 
-    // MARK: - QuestionFactoryDelegate
-    
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question else { return }
-        currentQuestion = question
-
-        let model = convert(model: question)
-
-        DispatchQueue.main.async {
-            self.show(quiz: model)
-        }
-    }
-
-    // MARK: - Quiz Flow
-
-    private func showNextQuestionOrResults() {
-        if currentQuestionIndex + 1 < questionsAmount {
-            currentQuestionIndex += 1
-            questionsFactory.requestNextQuestion()
-        } else {
-            showResults()
-        }
-        setButtons(isEnabled: true, yesButton, noButton)
-    }
-
-    private func resetGame() {
-        currentQuestionIndex = 0
-        correctAnswers = 0
-        questionsFactory.requestNextQuestion()
-    }
-
-    // MARK: - Mapping
-
-    private func convert(model: QuizQuestion) -> QuizStepModel {
-        return QuizStepModel(
-            image: UIImage(named: model.imageName) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-        )
-    }
-
     // MARK: - Presentation
 
-    private func show(quiz step: QuizStepModel) {
+    func show(quiz step: QuizStepModel) {
         progressLabel.text = step.questionNumber
-        moviePosterImage.image = step.image
         questionLabel.text = step.question
         moviePosterImage.layer.borderColor = UIColor.clear.cgColor
+        moviePosterImage.image = UIImage(data: step.image)
     }
 
-    private func showAnswerResult(isCorrect: Bool) {
-        let borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        moviePosterImage.layer.borderColor = borderColor
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.moviePosterImage.layer.borderColor = UIColor.clear.cgColor
-            self.showNextQuestionOrResults()
-        }
-    }
-
-    private func showResults() {
-        statisticService.store(correct: correctAnswers, total: questionsAmount)
-
+    func showResults() {
         let message = """
-                Ваш результат: \(correctAnswers) из \(questionsAmount)
-                Количество сыгранных квизов: \(statisticService.gamesCount)
-                Рекорд: \(statisticService.bestGame.correct) из \(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))
-                Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
-                """
+        Ваш результат: \(presenter.correctAnswers) из \(presenter.questionsAmount)
+        Количество сыгранных квизов: \(presenter.statisticService.gamesCount)
+        Рекорд: \(presenter.statisticService.bestGame.correct) из \(presenter.statisticService.bestGame.total) (\(presenter.statisticService.bestGame.date.dateTimeString))
+        Средняя точность: \(String(format: "%.2f", presenter.statisticService.totalAccuracy))%
+        """
 
         let alertModel = AlertModel(
             title: "Игра окончена",
             message: message,
             buttonText: "Сыграть еще раз"
         ) { [weak self] in
-            self?.resetGame()
+            self?.presenter.resetGame()
         }
 
+        alertPresenter.show(model: alertModel, identifier: "QuizResultAlert")
+    }
+
+    func showLoadingIndicator() {
+        indicator.isHidden = false
+        indicator.startAnimating()
+    }
+
+    func hideLoadingIndicator() {
+        indicator.stopAnimating()
+        indicator.isHidden = true
+    }
+
+    func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        let alertModel = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать еще раз"
+        ) { [weak self] in
+            self?.presenter.resetGame()
+        }
         alertPresenter.show(model: alertModel)
+    }
+
+    func showAnswerResult(isCorrect: Bool) {
+        let borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        moviePosterImage.layer.borderColor = borderColor
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            self?.moviePosterImage.layer.borderColor = UIColor.clear.cgColor
+            self?.presenter.showNextQuestionOrResults()
+        }
     }
 
     // MARK: - Helpers
 
-    private func isAnswerCorrect() -> Bool {
-        currentQuestion?.correctAnswer ?? false
-    }
-
-    private func setButtons(isEnabled: Bool, _ buttons: UIButton...) {
-        buttons.forEach { $0.isEnabled = isEnabled }
+    func setButtons(isEnabled: Bool) {
+        yesButton.isEnabled = isEnabled
+        noButton.isEnabled = isEnabled
     }
 }

@@ -2,9 +2,13 @@ import UIKit
 
 final class MoviePosterImageView: UIImageView {
 
-    init() {
+    private let identifier: String
+
+    init(identifier: String) {
+        self.identifier = identifier
         super.init(frame: .zero)
         setupUI()
+        setupAccessibility()
     }
     
     @available(*, unavailable)
@@ -18,7 +22,11 @@ final class MoviePosterImageView: UIImageView {
         layer.borderWidth = 8
         layer.masksToBounds = true
         layer.borderColor = UIColor.clear.cgColor
-        backgroundColor = .white
+        backgroundColor = .ypBlack
         contentMode = .scaleAspectFill
+    }
+
+    private func setupAccessibility() {
+        accessibilityIdentifier = identifier
     }
 }
