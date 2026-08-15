@@ -1,7 +1,7 @@
-import UIKit
+import Foundation
 
 struct QuizStepModel {
-    let image: UIImage
+    let image: Data
     let question: String
     let questionNumber: String
 }
