@@ -38,8 +38,8 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     private let progressLabel = QuizLabel("1/10", .regular, identifier: "Index")
     private let moviePosterImage = MoviePosterImageView(identifier: "Poster")
     private let questionLabel = QuizLabel("Рейтинг этого фильма больше чем 6?", .heading)
-    private let yesButton = QuizAnswerButton("Да", identifier: "Yes")
-    private let noButton = QuizAnswerButton("Нет", identifier: "No")
+    private let yesButton = QuizAnswerButton("Да")
+    private let noButton = QuizAnswerButton("Нет")
     private let indicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView()
         indicator.translatesAutoresizingMaskIntoConstraints = false
@@ -51,18 +51,8 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
 
     // MARK: - Properties
 
-    private let presenter = MovieQuizPresenter()
-    private lazy var alertPresenter = AlertPresenter(viewController: self)
-
-    // MARK: - Lifecycle
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        presenter.view = self
-        setupUI()
-        setupActions()
-        setupConstraints()
-        presenter.loadData()
+        showLoadingIndicator()
+        questionsFactory.loadData()
     }
 
     // MARK: - Actions
@@ -110,12 +100,68 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
             mainStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
 
             headerStack.heightAnchor.constraint(equalToConstant: 24),
+
             moviePosterImage.widthAnchor.constraint(equalTo: moviePosterImage.heightAnchor, multiplier: 2/3),
             indicator.centerYAnchor.constraint(equalTo: moviePosterImage.centerYAnchor),
             indicator.centerXAnchor.constraint(equalTo: moviePosterImage.centerXAnchor),
             questionLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
+
             buttonsStack.heightAnchor.constraint(equalToConstant: 60),
         ])
+    }
+
+    // MARK: - QuestionFactoryDelegate
+
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question else { return }
+        currentQuestion = question
+
+        let model = convert(model: question)
+
+        DispatchQueue.main.async {
+            self.show(quiz: model)
+        }
+    }
+
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        questionsFactory.requestNextQuestion()
+    }
+
+    func didFailToLoadData(with error: Error) {
+        DispatchQueue.main.async { [weak self] in
+            let userMessage = ErrorHandler.getUserFriendlyMessage(from: error)
+            self?.showNetworkError(message: userMessage)
+        }
+    }
+
+    // MARK: - Quiz Flow
+
+    private func showNextQuestionOrResults() {
+        if currentQuestionIndex + 1 < questionsAmount {
+            currentQuestionIndex += 1
+            questionsFactory.requestNextQuestion()
+        } else {
+            showResults()
+        }
+        setButtons(isEnabled: true, yesButton, noButton)
+    }
+
+    private func resetGame() {
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        showLoadingIndicator()
+        questionsFactory.loadData()
+    }
+
+    // MARK: - Mapping
+
+    private func convert(model: QuizQuestion) -> QuizStepModel {
+        return QuizStepModel(
+            image: UIImage(data: model.image) ?? UIImage(),
+            question: model.text,
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
+        )
     }
 
     // MARK: - Presentation
@@ -124,7 +170,9 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         progressLabel.text = step.questionNumber
         questionLabel.text = step.question
         moviePosterImage.layer.borderColor = UIColor.clear.cgColor
-        moviePosterImage.image = UIImage(data: step.image)
+
+
+        moviePosterImage.image = step.image
     }
 
     func showResults() {
@@ -167,15 +215,32 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         }
         alertPresenter.show(model: alertModel)
     }
+  
+    private func showLoadingIndicator() {
+        indicator.isHidden = false
+        indicator.startAnimating()
+    }
 
-    func showAnswerResult(isCorrect: Bool) {
-        let borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        moviePosterImage.layer.borderColor = borderColor
+    private func hideLoadingIndicator() {
+        indicator.stopAnimating()
+        indicator.isHidden = true
+    }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            self?.moviePosterImage.layer.borderColor = UIColor.clear.cgColor
-            self?.presenter.showNextQuestionOrResults()
-        }
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        let alertModel = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать еще раз") { [weak self] in
+                self?.resetGame()
+            }
+        alertPresenter.show(model: alertModel)
+    }
+
+    // MARK: - Helpers
+    
+    private func isAnswerCorrect() -> Bool {
+        currentQuestion?.correctAnswer ?? false
     }
 
     // MARK: - Helpers
